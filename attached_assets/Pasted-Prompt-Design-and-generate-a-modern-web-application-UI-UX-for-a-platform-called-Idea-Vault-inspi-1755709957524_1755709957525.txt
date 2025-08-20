@@ -1,0 +1,38 @@
+Prompt:
+*"Design and generate a modern web application UI/UX for a platform called Idea Vault, inspired by the clean and futuristic design style of the Arduino Cloud dashboard.
+
+The website should feel professional, minimalistic, and intuitive with a white + dark theme toggle, smooth cards, rounded edges, soft shadows, and grid layouts.
+
+🔹 Core Sections:
+
+Home Dashboard → Display user’s saved ideas as interactive cards (title, tags, short description, status: Draft / Public / Investment Open). Each card should have quick action buttons (Edit, Share, Delete).
+
+Idea Editor Page → A form-like page where users can create/edit ideas with fields (Title, Category, Problem Statement, Solution, Target Audience, Tags). Use input fields, textareas, and draggable components for customization.
+
+Public Vault Explorer → A community page where users can browse public ideas. Display cards in a grid with filters (Latest, Trending, Most Funded). Include like, comment, and micro-invest buttons (instead of Arduino Cloud widgets).
+
+Investment Dashboard → Replace Arduino Cloud graphs with funding charts (bar/pie graphs) showing how much support each idea has received. Include investor badges & progress bars.
+
+Profile & Vault Security → User profile with personal info, uploaded ideas, followers, and settings (toggle private/public vaults). Highlight idea ownership and timestamp badges.
+
+🔹 UI Inspiration from Arduino Cloud:
+
+Left sidebar navigation with icons (Dashboard, My Ideas, Explorer, Investment, Profile).
+
+Top navigation bar with search + notifications.
+
+Clean data visualization widgets (cards, charts, gauges → adapted to idea stats).
+
+Use rich white/black base colors, accent with modern blues and purples (like Arduino Cloud).
+
+Responsive grid system for mobile, tablet, and desktop.
+
+🔹 Animations & Experience:
+
+Smooth hover animations on cards.
+
+Fade-in transitions when switching between dashboard sections.
+
+Drag-and-drop feel when editing/organizing ideas (like widgets in Arduino Cloud).
+
+End result: A futuristic, professional, community-driven web platform that makes storing, showcasing, and funding ideas feel as smooth as managing devices and dashboards in Arduino Cloud.*
