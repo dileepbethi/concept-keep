@@ -40,6 +40,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all users
+  app.get("/api/users", async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get users" });
+    }
+  });
+
+  // Get specific user
+  app.get("/api/user/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const user = await storage.getUser(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user" });
+    }
+  });
+
+  // Connect to user
+  app.post("/api/user/:userId/connect/:targetUserId", async (req, res) => {
+    try {
+      const { userId, targetUserId } = req.params;
+      await storage.connectToUser(userId, targetUserId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to connect to user" });
+    }
+  });
+
+  // Disconnect from user
+  app.delete("/api/user/:userId/connect/:targetUserId", async (req, res) => {
+    try {
+      const { userId, targetUserId } = req.params;
+      await storage.disconnectFromUser(userId, targetUserId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to disconnect from user" });
+    }
+  });
+
+  // Check connection status
+  app.get("/api/user/:userId/connected/:targetUserId", async (req, res) => {
+    try {
+      const { userId, targetUserId } = req.params;
+      const isConnected = await storage.isConnected(userId, targetUserId);
+      res.json({ connected: isConnected });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to check connection" });
+    }
+  });
+
+  // Get user connections
+  app.get("/api/user/:userId/connections", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const connections = await storage.getConnections(userId);
+      res.json(connections);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get connections" });
+    }
+  });
+
   // Get global stats
   app.get("/api/stats", async (req, res) => {
     try {

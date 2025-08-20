@@ -10,6 +10,8 @@ import MyIdeas from "@/pages/my-ideas";
 import Explorer from "@/pages/explorer";
 import Investment from "@/pages/investment";
 import Profile from "@/pages/profile";
+import Profiles from "@/pages/profiles";
+import ProfileDetail from "@/pages/profile-detail";
 import NotFound from "@/pages/not-found";
 import { Bell, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -52,6 +54,8 @@ function Router() {
     { path: "/my-ideas", component: MyIdeas, title: "My Ideas" },
     { path: "/explorer", component: Explorer, title: "Public Explorer" },
     { path: "/investment", component: Investment, title: "Investment Dashboard" },
+    { path: "/profiles", component: Profiles, title: "Network Profiles" },
+    { path: "/profile/:id", component: ProfileDetail, title: "Profile Details" },
     { path: "/profile", component: Profile, title: "Profile & Settings" },
   ];
 
