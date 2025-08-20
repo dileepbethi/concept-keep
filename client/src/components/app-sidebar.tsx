@@ -1,4 +1,4 @@
-import { Home, Lightbulb, Globe, TrendingUp, User, Users, Plus } from "lucide-react"
+import { Home, Lightbulb, Globe, TrendingUp, User, Users, Plus, Building2 } from "lucide-react"
 import { Link, useLocation } from "wouter"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -10,6 +10,7 @@ const navigation = [
   { name: "My Ideas", href: "/my-ideas", icon: Lightbulb },
   { name: "Public Explorer", href: "/explorer", icon: Globe },
   { name: "Investment", href: "/investment", icon: TrendingUp },
+  { name: "Private Market", href: "/private-market", icon: Building2 },
   { name: "Network", href: "/profiles", icon: Users },
   { name: "Profile", href: "/profile", icon: User },
 ]

@@ -1,4 +1,13 @@
-import { type User, type InsertUser, type Idea, type InsertIdea, type Investment, type InsertInvestment, type Comment, type InsertComment } from "@shared/schema";
+import { 
+  type User, type InsertUser, 
+  type Idea, type InsertIdea, 
+  type Investment, type InsertInvestment, 
+  type Comment, type InsertComment,
+  type UserWallet, type InsertUserWallet,
+  type MarketListing, type InsertMarketListing,
+  type Transaction, type InsertTransaction,
+  type UserHolding, type InsertUserHolding
+} from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -41,6 +50,32 @@ export interface IStorage {
   // Stats
   getUserStats(userId: string): Promise<{ ideasCount: number; followersCount: number; investmentsCount: number; totalFunding: number }>;
   getIdeaStats(): Promise<{ totalIdeas: number; publicIdeas: number; totalFunding: number }>;
+  
+  // Private Market
+  // Wallet
+  getUserWallet(userId: string): Promise<UserWallet | undefined>;
+  createUserWallet(wallet: InsertUserWallet): Promise<UserWallet>;
+  updateUserWallet(userId: string, credits: string): Promise<UserWallet | undefined>;
+  
+  // Market Listings
+  getMarketListing(id: string): Promise<MarketListing | undefined>;
+  getAllMarketListings(filter?: { industry?: string; status?: string }): Promise<MarketListing[]>;
+  getMarketListingsByUser(userId: string): Promise<MarketListing[]>;
+  getFeaturedMarketListings(): Promise<MarketListing[]>;
+  createMarketListing(listing: InsertMarketListing): Promise<MarketListing>;
+  updateMarketListing(id: string, updates: Partial<MarketListing>): Promise<MarketListing | undefined>;
+  
+  // Transactions
+  getTransaction(id: string): Promise<Transaction | undefined>;
+  getTransactionsByUser(userId: string): Promise<Transaction[]>;
+  getTransactionsByListing(listingId: string): Promise<Transaction[]>;
+  createTransaction(transaction: InsertTransaction): Promise<Transaction>;
+  
+  // Holdings
+  getUserHoldings(userId: string): Promise<UserHolding[]>;
+  getUserHoldingByListing(userId: string, listingId: string): Promise<UserHolding | undefined>;
+  createUserHolding(holding: InsertUserHolding): Promise<UserHolding>;
+  updateUserHolding(id: string, updates: Partial<UserHolding>): Promise<UserHolding | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -51,6 +86,12 @@ export class MemStorage implements IStorage {
   private likes: Set<string>;
   private followers: Set<string>;
   private connections: Set<string>;
+  
+  // Private Market Storage
+  private userWallets: Map<string, UserWallet>;
+  private marketListings: Map<string, MarketListing>;
+  private transactions: Map<string, Transaction>;
+  private userHoldings: Map<string, UserHolding>;
 
   constructor() {
     this.users = new Map();
@@ -60,6 +101,12 @@ export class MemStorage implements IStorage {
     this.likes = new Set();
     this.followers = new Set();
     this.connections = new Set();
+    
+    // Private Market initialization
+    this.userWallets = new Map();
+    this.marketListings = new Map();
+    this.transactions = new Map();
+    this.userHoldings = new Map();
 
     // Initialize with sample data
     this.initializeSampleData();
@@ -512,6 +559,236 @@ export class MemStorage implements IStorage {
     this.connections.add("user-3-user-6");
     this.connections.add("user-4-user-7");
     this.connections.add("user-5-user-6");
+
+    // Initialize private market sample data
+    this.initializePrivateMarketData();
+  }
+
+  private initializePrivateMarketData() {
+    // Create sample user wallets for all users
+    Array.from(this.users.values()).forEach(user => {
+      const wallet: UserWallet = {
+        id: `wallet-${user.id}`,
+        userId: user.id,
+        credits: "10000.00",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.userWallets.set(user.id, wallet);
+    });
+
+    // Create sample market listings
+    const sampleListings: MarketListing[] = [
+      {
+        id: "listing-1",
+        userId: "user-2",
+        ideaId: "idea-4",
+        companyName: "OceanTech Solutions",
+        description: "Revolutionary plastic recycling platform with blockchain rewards system",
+        totalValuation: "2500000.00",
+        equityPercentage: "8.50",
+        pricePerShare: "125.00",
+        totalShares: 1700,
+        availableShares: 1700,
+        industry: "Environment",
+        status: "active",
+        featured: true,
+        createdAt: new Date("2024-03-01"),
+        updatedAt: new Date("2024-03-01"),
+      },
+      {
+        id: "listing-2",
+        userId: "user-3",
+        ideaId: "idea-6",
+        companyName: "RemoteHub Inc",
+        description: "All-in-one workspace platform for distributed teams",
+        totalValuation: "5000000.00",
+        equityPercentage: "5.00",
+        pricePerShare: "250.00",
+        totalShares: 1000,
+        availableShares: 850,
+        industry: "Technology",
+        status: "active",
+        featured: true,
+        createdAt: new Date("2024-02-28"),
+        updatedAt: new Date("2024-02-28"),
+      },
+      {
+        id: "listing-3",
+        userId: "user-4",
+        ideaId: "idea-9",
+        companyName: "MindCare AI",
+        description: "AI-powered mental health companion and support platform",
+        totalValuation: "3200000.00",
+        equityPercentage: "12.00",
+        pricePerShare: "192.00",
+        totalShares: 2000,
+        availableShares: 1650,
+        industry: "Healthcare",
+        status: "active",
+        featured: true,
+        createdAt: new Date("2024-03-05"),
+        updatedAt: new Date("2024-03-05"),
+      },
+      {
+        id: "listing-4",
+        userId: "user-5",
+        ideaId: "idea-11",
+        companyName: "PropToken",
+        description: "Fractional real estate investment platform with tokenized properties",
+        totalValuation: "8000000.00",
+        equityPercentage: "3.75",
+        pricePerShare: "400.00",
+        totalShares: 750,
+        availableShares: 600,
+        industry: "FinTech",
+        status: "active",
+        featured: false,
+        createdAt: new Date("2024-02-25"),
+        updatedAt: new Date("2024-02-25"),
+      },
+      {
+        id: "listing-5",
+        userId: "user-6",
+        ideaId: "idea-13",
+        companyName: "EthicsAI Corp",
+        description: "AI bias detection and prevention tool for enterprise machine learning",
+        totalValuation: "4500000.00",
+        equityPercentage: "6.25",
+        pricePerShare: "180.00",
+        totalShares: 1562,
+        availableShares: 1200,
+        industry: "Technology",
+        status: "active",
+        featured: false,
+        createdAt: new Date("2024-03-08"),
+        updatedAt: new Date("2024-03-08"),
+      },
+      {
+        id: "listing-6",
+        userId: "user-7",
+        ideaId: "idea-16",
+        companyName: "FoodShare Network",
+        description: "Platform connecting food businesses with local charities to reduce waste",
+        totalValuation: "1800000.00",
+        equityPercentage: "15.00",
+        pricePerShare: "90.00",
+        totalShares: 3000,
+        availableShares: 2500,
+        industry: "Social Impact",
+        status: "active",
+        featured: false,
+        createdAt: new Date("2024-03-03"),
+        updatedAt: new Date("2024-03-03"),
+      }
+    ];
+
+    sampleListings.forEach(listing => this.marketListings.set(listing.id, listing));
+
+    // Create sample transactions
+    const sampleTransactions: Transaction[] = [
+      {
+        id: "tx-1",
+        buyerId: "user-1",
+        sellerId: null,
+        listingId: "listing-2",
+        type: "buy",
+        shares: 150,
+        pricePerShare: "250.00",
+        totalAmount: "37500.00",
+        status: "completed",
+        createdAt: new Date("2024-03-10"),
+      },
+      {
+        id: "tx-2",
+        buyerId: "user-1",
+        sellerId: null,
+        listingId: "listing-3",
+        type: "buy",
+        shares: 350,
+        pricePerShare: "192.00",
+        totalAmount: "67200.00",
+        status: "completed",
+        createdAt: new Date("2024-03-12"),
+      },
+      {
+        id: "tx-3",
+        buyerId: "user-3",
+        sellerId: null,
+        listingId: "listing-1",
+        type: "buy",
+        shares: 200,
+        pricePerShare: "125.00",
+        totalAmount: "25000.00",
+        status: "completed",
+        createdAt: new Date("2024-03-08"),
+      },
+      {
+        id: "tx-4",
+        buyerId: "user-5",
+        sellerId: null,
+        listingId: "listing-3",
+        type: "buy",
+        shares: 100,
+        pricePerShare: "192.00",
+        totalAmount: "19200.00",
+        status: "completed",
+        createdAt: new Date("2024-03-14"),
+      }
+    ];
+
+    sampleTransactions.forEach(tx => this.transactions.set(tx.id, tx));
+
+    // Create sample holdings
+    const sampleHoldings: UserHolding[] = [
+      {
+        id: "holding-1",
+        userId: "user-1",
+        listingId: "listing-2",
+        shares: 150,
+        averageCost: "250.00",
+        totalInvested: "37500.00",
+        createdAt: new Date("2024-03-10"),
+        updatedAt: new Date("2024-03-10"),
+      },
+      {
+        id: "holding-2",
+        userId: "user-1",
+        listingId: "listing-3",
+        shares: 350,
+        averageCost: "192.00",
+        totalInvested: "67200.00",
+        createdAt: new Date("2024-03-12"),
+        updatedAt: new Date("2024-03-12"),
+      },
+      {
+        id: "holding-3",
+        userId: "user-3",
+        listingId: "listing-1",
+        shares: 200,
+        averageCost: "125.00",
+        totalInvested: "25000.00",
+        createdAt: new Date("2024-03-08"),
+        updatedAt: new Date("2024-03-08"),
+      },
+      {
+        id: "holding-4",
+        userId: "user-5",
+        listingId: "listing-3",
+        shares: 100,
+        averageCost: "192.00",
+        totalInvested: "19200.00",
+        createdAt: new Date("2024-03-14"),
+        updatedAt: new Date("2024-03-14"),
+      }
+    ];
+
+    sampleHoldings.forEach(holding => this.userHoldings.set(holding.id, holding));
+
+    // Update available shares in listings based on transactions
+    this.marketListings.get("listing-1")!.availableShares = 1500;
+    this.marketListings.get("listing-2")!.availableShares = 850;
+    this.marketListings.get("listing-3")!.availableShares = 1550;
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -754,6 +1031,230 @@ export class MemStorage implements IStorage {
       publicIdeas: publicIdeas.length,
       totalFunding,
     };
+  }
+
+  // Private Market Methods
+
+  // Wallet methods
+  async getUserWallet(userId: string): Promise<UserWallet | undefined> {
+    return this.userWallets.get(userId);
+  }
+
+  async createUserWallet(wallet: InsertUserWallet): Promise<UserWallet> {
+    const id = randomUUID();
+    const newWallet: UserWallet = {
+      id,
+      ...wallet,
+      credits: wallet.credits || "10000.00",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.userWallets.set(wallet.userId, newWallet);
+    return newWallet;
+  }
+
+  async updateUserWallet(userId: string, credits: string): Promise<UserWallet | undefined> {
+    const wallet = this.userWallets.get(userId);
+    if (!wallet) return undefined;
+
+    const updatedWallet = {
+      ...wallet,
+      credits,
+      updatedAt: new Date(),
+    };
+    this.userWallets.set(userId, updatedWallet);
+    return updatedWallet;
+  }
+
+  // Market Listing methods
+  async getMarketListing(id: string): Promise<MarketListing | undefined> {
+    return this.marketListings.get(id);
+  }
+
+  async getAllMarketListings(filter?: { industry?: string; status?: string }): Promise<MarketListing[]> {
+    let listings = Array.from(this.marketListings.values());
+    
+    if (filter?.industry) {
+      listings = listings.filter(listing => listing.industry === filter.industry);
+    }
+    if (filter?.status) {
+      listings = listings.filter(listing => listing.status === filter.status);
+    }
+    
+    return listings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getMarketListingsByUser(userId: string): Promise<MarketListing[]> {
+    return Array.from(this.marketListings.values())
+      .filter(listing => listing.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getFeaturedMarketListings(): Promise<MarketListing[]> {
+    return Array.from(this.marketListings.values())
+      .filter(listing => listing.featured && listing.status === "active")
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async createMarketListing(listing: InsertMarketListing): Promise<MarketListing> {
+    const id = randomUUID();
+    const newListing: MarketListing = {
+      id,
+      ...listing,
+      availableShares: listing.totalShares,
+      status: "active",
+      featured: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.marketListings.set(id, newListing);
+    return newListing;
+  }
+
+  async updateMarketListing(id: string, updates: Partial<MarketListing>): Promise<MarketListing | undefined> {
+    const listing = this.marketListings.get(id);
+    if (!listing) return undefined;
+
+    const updatedListing = {
+      ...listing,
+      ...updates,
+      updatedAt: new Date(),
+    };
+    this.marketListings.set(id, updatedListing);
+    return updatedListing;
+  }
+
+  // Transaction methods
+  async getTransaction(id: string): Promise<Transaction | undefined> {
+    return this.transactions.get(id);
+  }
+
+  async getTransactionsByUser(userId: string): Promise<Transaction[]> {
+    return Array.from(this.transactions.values())
+      .filter(tx => tx.buyerId === userId || tx.sellerId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getTransactionsByListing(listingId: string): Promise<Transaction[]> {
+    return Array.from(this.transactions.values())
+      .filter(tx => tx.listingId === listingId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async createTransaction(transaction: InsertTransaction): Promise<Transaction> {
+    const id = randomUUID();
+    const totalAmount = (transaction.shares * parseFloat(transaction.pricePerShare)).toFixed(2);
+    
+    const newTransaction: Transaction = {
+      id,
+      ...transaction,
+      sellerId: transaction.sellerId || null,
+      totalAmount,
+      status: "completed",
+      createdAt: new Date(),
+    };
+    
+    this.transactions.set(id, newTransaction);
+
+    // Update listing available shares
+    const listing = this.marketListings.get(transaction.listingId);
+    if (listing && transaction.type === "buy") {
+      const updatedListing = {
+        ...listing,
+        availableShares: listing.availableShares - transaction.shares,
+        updatedAt: new Date(),
+      };
+      this.marketListings.set(transaction.listingId, updatedListing);
+    }
+
+    // Update or create user holding
+    if (transaction.type === "buy") {
+      await this.updateOrCreateHolding(transaction.buyerId, transaction.listingId, transaction.shares, transaction.pricePerShare);
+    }
+
+    // Update user wallet
+    if (transaction.type === "buy") {
+      const wallet = await this.getUserWallet(transaction.buyerId);
+      if (wallet) {
+        const newCredits = (parseFloat(wallet.credits) - parseFloat(totalAmount)).toFixed(2);
+        await this.updateUserWallet(transaction.buyerId, newCredits);
+      }
+    }
+
+    return newTransaction;
+  }
+
+  private async updateOrCreateHolding(userId: string, listingId: string, shares: number, pricePerShare: string): Promise<void> {
+    const existingHolding = Array.from(this.userHoldings.values())
+      .find(h => h.userId === userId && h.listingId === listingId);
+
+    if (existingHolding) {
+      // Update existing holding
+      const totalShares = existingHolding.shares + shares;
+      const totalInvested = parseFloat(existingHolding.totalInvested) + (shares * parseFloat(pricePerShare));
+      const averageCost = (totalInvested / totalShares).toFixed(2);
+
+      const updatedHolding = {
+        ...existingHolding,
+        shares: totalShares,
+        averageCost,
+        totalInvested: totalInvested.toFixed(2),
+        updatedAt: new Date(),
+      };
+      this.userHoldings.set(existingHolding.id, updatedHolding);
+    } else {
+      // Create new holding
+      const id = randomUUID();
+      const totalInvested = (shares * parseFloat(pricePerShare)).toFixed(2);
+      const newHolding: UserHolding = {
+        id,
+        userId,
+        listingId,
+        shares,
+        averageCost: pricePerShare,
+        totalInvested,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.userHoldings.set(id, newHolding);
+    }
+  }
+
+  // Holdings methods
+  async getUserHoldings(userId: string): Promise<UserHolding[]> {
+    return Array.from(this.userHoldings.values())
+      .filter(holding => holding.userId === userId)
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  }
+
+  async getUserHoldingByListing(userId: string, listingId: string): Promise<UserHolding | undefined> {
+    return Array.from(this.userHoldings.values())
+      .find(holding => holding.userId === userId && holding.listingId === listingId);
+  }
+
+  async createUserHolding(holding: InsertUserHolding): Promise<UserHolding> {
+    const id = randomUUID();
+    const newHolding: UserHolding = {
+      id,
+      ...holding,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.userHoldings.set(id, newHolding);
+    return newHolding;
+  }
+
+  async updateUserHolding(id: string, updates: Partial<UserHolding>): Promise<UserHolding | undefined> {
+    const holding = this.userHoldings.get(id);
+    if (!holding) return undefined;
+
+    const updatedHolding = {
+      ...holding,
+      ...updates,
+      updatedAt: new Date(),
+    };
+    this.userHoldings.set(id, updatedHolding);
+    return updatedHolding;
   }
 }
 

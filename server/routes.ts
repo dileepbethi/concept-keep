@@ -1,7 +1,14 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertIdeaSchema, insertInvestmentSchema, insertCommentSchema } from "@shared/schema";
+import { 
+  insertIdeaSchema, 
+  insertInvestmentSchema, 
+  insertCommentSchema,
+  insertMarketListingSchema,
+  insertTransactionSchema,
+  insertUserWalletSchema
+} from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -258,6 +265,163 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(comments);
     } catch (error) {
       res.status(500).json({ message: "Failed to get comments" });
+    }
+  });
+
+  // Private Market Routes
+  
+  // User Wallet
+  app.get("/api/user/:id/wallet", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const wallet = await storage.getUserWallet(id);
+      if (!wallet) {
+        return res.status(404).json({ message: "Wallet not found" });
+      }
+      res.json(wallet);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get wallet" });
+    }
+  });
+
+  app.put("/api/user/:id/wallet", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { credits } = req.body;
+      const wallet = await storage.updateUserWallet(id, credits);
+      if (!wallet) {
+        return res.status(404).json({ message: "Wallet not found" });
+      }
+      res.json(wallet);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update wallet" });
+    }
+  });
+
+  // Market Listings
+  app.get("/api/market/listings", async (req, res) => {
+    try {
+      const { industry, status } = req.query;
+      const filter: { industry?: string; status?: string } = {};
+      if (industry) filter.industry = industry as string;
+      if (status) filter.status = status as string;
+      
+      const listings = await storage.getAllMarketListings(filter);
+      res.json(listings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get market listings" });
+    }
+  });
+
+  app.get("/api/market/listings/featured", async (req, res) => {
+    try {
+      const listings = await storage.getFeaturedMarketListings();
+      res.json(listings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get featured listings" });
+    }
+  });
+
+  app.get("/api/market/listings/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const listing = await storage.getMarketListing(id);
+      if (!listing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+      res.json(listing);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get listing" });
+    }
+  });
+
+  app.get("/api/market/listings/user/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const listings = await storage.getMarketListingsByUser(userId);
+      res.json(listings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user listings" });
+    }
+  });
+
+  app.post("/api/market/listings", async (req, res) => {
+    try {
+      const validatedData = insertMarketListingSchema.parse(req.body);
+      const listing = await storage.createMarketListing(validatedData);
+      res.status(201).json(listing);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid listing data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create listing" });
+    }
+  });
+
+  // Transactions
+  app.get("/api/market/transactions/user/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const transactions = await storage.getTransactionsByUser(userId);
+      res.json(transactions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user transactions" });
+    }
+  });
+
+  app.get("/api/market/transactions/listing/:listingId", async (req, res) => {
+    try {
+      const { listingId } = req.params;
+      const transactions = await storage.getTransactionsByListing(listingId);
+      res.json(transactions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get listing transactions" });
+    }
+  });
+
+  app.post("/api/market/transactions", async (req, res) => {
+    try {
+      const validatedData = insertTransactionSchema.parse(req.body);
+      
+      // Check if user has enough credits
+      const wallet = await storage.getUserWallet(validatedData.buyerId);
+      if (!wallet) {
+        return res.status(404).json({ message: "Buyer wallet not found" });
+      }
+      
+      const totalCost = validatedData.shares * parseFloat(validatedData.pricePerShare);
+      if (parseFloat(wallet.credits) < totalCost) {
+        return res.status(400).json({ message: "Insufficient credits" });
+      }
+      
+      // Check if enough shares are available
+      const listing = await storage.getMarketListing(validatedData.listingId);
+      if (!listing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+      
+      if (listing.availableShares < validatedData.shares) {
+        return res.status(400).json({ message: "Not enough shares available" });
+      }
+      
+      const transaction = await storage.createTransaction(validatedData);
+      res.status(201).json(transaction);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid transaction data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create transaction" });
+    }
+  });
+
+  // Holdings
+  app.get("/api/market/holdings/user/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const holdings = await storage.getUserHoldings(userId);
+      res.json(holdings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user holdings" });
     }
   });
 

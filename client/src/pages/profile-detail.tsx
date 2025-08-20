@@ -19,7 +19,10 @@ import {
   TrendingUp,
   Lightbulb,
   DollarSign,
-  Users
+  Users,
+  Target,
+  PieChart,
+  Building2
 } from "lucide-react"
 import { Link } from "wouter"
 
@@ -28,6 +31,35 @@ interface UserStats {
   followersCount: number
   investmentsCount: number
   totalFunding: number
+}
+
+interface UserHolding {
+  id: string
+  userId: string
+  listingId: string
+  shares: number
+  averageCost: string
+  totalInvested: string
+  createdAt: string
+  updatedAt: string
+}
+
+interface MarketListing {
+  id: string
+  userId: string
+  ideaId: string
+  companyName: string
+  description: string
+  totalValuation: string
+  equityPercentage: string
+  pricePerShare: string
+  totalShares: number
+  availableShares: number
+  industry: string
+  status: string
+  featured: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 export default function ProfileDetail() {
@@ -63,6 +95,16 @@ export default function ProfileDetail() {
   const { data: connections = [] } = useQuery<User[]>({
     queryKey: ["/api/user", id, "connections"],
     enabled: !!id,
+  })
+
+  const { data: userHoldings = [] } = useQuery<UserHolding[]>({
+    queryKey: ["/api/market/holdings/user", id],
+    enabled: !!id,
+  })
+
+  // Get listings for holdings to show company details
+  const { data: allListings = [] } = useQuery<MarketListing[]>({
+    queryKey: ["/api/market/listings"],
   })
 
   const connectMutation = useMutation({
@@ -286,6 +328,74 @@ export default function ProfileDetail() {
                 </Button>
               </div>
             )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Holdings Section */}
+      {userHoldings.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <PieChart className="h-5 w-5" />
+              Portfolio Holdings ({userHoldings.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {userHoldings.map((holding) => {
+                const listing = allListings.find(l => l.id === holding.listingId)
+                if (!listing) return null
+
+                const currentValue = holding.shares * parseFloat(listing.pricePerShare)
+                const profitLoss = currentValue - parseFloat(holding.totalInvested)
+                const profitLossPercentage = (profitLoss / parseFloat(holding.totalInvested)) * 100
+
+                return (
+                  <div
+                    key={holding.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                    data-testid={`holding-${holding.id}`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-primary/10 rounded-full">
+                        <Building2 className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{listing.companyName}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {holding.shares.toLocaleString()} shares • {listing.industry}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">${currentValue.toLocaleString()}</p>
+                      <p className={`text-sm ${profitLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {profitLoss >= 0 ? '+' : ''}${profitLoss.toFixed(2)} ({profitLossPercentage.toFixed(1)}%)
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+              
+              <div className="pt-4 border-t">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Total Invested:</span>
+                  <span className="font-medium">
+                    ${userHoldings.reduce((sum, h) => sum + parseFloat(h.totalInvested), 0).toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-sm mt-1">
+                  <span className="text-muted-foreground">Current Value:</span>
+                  <span className="font-medium">
+                    ${userHoldings.reduce((sum, h) => {
+                      const listing = allListings.find(l => l.id === h.listingId)
+                      return sum + (listing ? h.shares * parseFloat(listing.pricePerShare) : 0)
+                    }, 0).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}

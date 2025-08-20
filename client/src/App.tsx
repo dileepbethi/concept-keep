@@ -9,6 +9,9 @@ import Dashboard from "@/pages/dashboard";
 import MyIdeas from "@/pages/my-ideas";
 import Explorer from "@/pages/explorer";
 import Investment from "@/pages/investment";
+import PrivateMarket from "@/pages/private-market";
+import Marketplace from "@/pages/marketplace";
+import CreateListing from "@/pages/create-listing";
 import Profile from "@/pages/profile";
 import Profiles from "@/pages/profiles";
 import ProfileDetail from "@/pages/profile-detail";
@@ -54,6 +57,9 @@ function Router() {
     { path: "/my-ideas", component: MyIdeas, title: "My Ideas" },
     { path: "/explorer", component: Explorer, title: "Public Explorer" },
     { path: "/investment", component: Investment, title: "Investment Dashboard" },
+    { path: "/private-market", component: PrivateMarket, title: "Private Market" },
+    { path: "/private-market/marketplace", component: Marketplace, title: "Marketplace" },
+    { path: "/private-market/create-listing", component: CreateListing, title: "Create Listing" },
     { path: "/profiles", component: Profiles, title: "Network Profiles" },
     { path: "/profile/:id", component: ProfileDetail, title: "Profile Details" },
     { path: "/profile", component: Profile, title: "Profile & Settings" },
