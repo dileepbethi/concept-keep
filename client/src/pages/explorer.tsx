@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { IdeaCard } from "@/components/idea-card"
+import { IdeaAnalysisDrawer } from "@/components/idea-analysis-drawer"
 import { Idea } from "@shared/schema"
 import { apiRequest } from "@/lib/queryClient"
 import { queryClient } from "@/lib/queryClient"
@@ -9,6 +10,8 @@ import { useToast } from "@/hooks/use-toast"
 
 export default function Explorer() {
   const [filter, setFilter] = useState<string>("latest")
+  const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null)
+  const [analysisOpen, setAnalysisOpen] = useState(false)
   const { toast } = useToast()
 
   const { data: publicIdeas = [], isLoading } = useQuery<Idea[]>({
@@ -48,6 +51,14 @@ export default function Explorer() {
     const amount = prompt("Enter investment amount:")
     if (amount && parseFloat(amount) > 0) {
       investMutation.mutate({ ideaId, amount })
+    }
+  }
+
+  const handleAnalyzeIdea = (id: string) => {
+    const idea = publicIdeas.find(i => i.id === id)
+    if (idea) {
+      setSelectedIdea(idea)
+      setAnalysisOpen(true)
     }
   }
 
@@ -95,6 +106,7 @@ export default function Explorer() {
               idea={idea}
               onLike={handleLike}
               onInvest={handleInvest}
+              onAnalyze={handleAnalyzeIdea}
               isPublic={true}
             />
           ))}
@@ -106,6 +118,12 @@ export default function Explorer() {
           </div>
         )}
       </div>
+
+      <IdeaAnalysisDrawer 
+        idea={selectedIdea}
+        open={analysisOpen}
+        onOpenChange={setAnalysisOpen}
+      />
     </div>
   )
 }

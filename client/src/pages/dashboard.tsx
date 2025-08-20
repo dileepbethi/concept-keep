@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Lightbulb, Globe, DollarSign, Users } from "lucide-react"
 import { StatsCard } from "@/components/stats-card"
 import { IdeaCard } from "@/components/idea-card"
+import { IdeaAnalysisDrawer } from "@/components/idea-analysis-drawer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Idea, User } from "@shared/schema"
@@ -9,6 +10,8 @@ import { useState } from "react"
 
 export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null)
+  const [analysisOpen, setAnalysisOpen] = useState(false)
 
   const { data: currentUser } = useQuery<User>({
     queryKey: ["/api/user/current"],
@@ -41,6 +44,14 @@ export default function Dashboard() {
 
   const handleDeleteIdea = (id: string) => {
     console.log("Delete idea:", id)
+  }
+
+  const handleAnalyzeIdea = (id: string) => {
+    const idea = userIdeas.find(i => i.id === id)
+    if (idea) {
+      setSelectedIdea(idea)
+      setAnalysisOpen(true)
+    }
   }
 
   if (!currentUser || !userStats || !globalStats) {
@@ -117,6 +128,7 @@ export default function Dashboard() {
               onEdit={handleEditIdea}
               onShare={handleShareIdea}
               onDelete={handleDeleteIdea}
+              onAnalyze={handleAnalyzeIdea}
             />
           ))}
         </div>
@@ -153,6 +165,12 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
+
+      <IdeaAnalysisDrawer 
+        idea={selectedIdea}
+        open={analysisOpen}
+        onOpenChange={setAnalysisOpen}
+      />
     </div>
   )
 }

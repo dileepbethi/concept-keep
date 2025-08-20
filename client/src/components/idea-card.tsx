@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Heart, MessageCircle, DollarSign, Edit, Share, Trash2 } from "lucide-react"
+import { Heart, MessageCircle, DollarSign, Edit, Share, Trash2, Brain } from "lucide-react"
 import { Idea } from "@shared/schema"
 import { cn } from "@/lib/utils"
 
@@ -12,6 +12,7 @@ interface IdeaCardProps {
   onDelete?: (id: string) => void
   onLike?: (id: string) => void
   onInvest?: (id: string) => void
+  onAnalyze?: (id: string) => void
   showActions?: boolean
   isPublic?: boolean
 }
@@ -36,6 +37,7 @@ export function IdeaCard({
   onDelete, 
   onLike, 
   onInvest,
+  onAnalyze,
   showActions = true,
   isPublic = false 
 }: IdeaCardProps) {
@@ -43,15 +45,27 @@ export function IdeaCard({
     <Card className="card-hover" data-testid={`card-idea-${idea.id}`}>
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <h4 className="font-semibold text-lg mb-2" data-testid={`text-title-${idea.id}`}>
+          <div className="flex-1 cursor-pointer" onClick={() => onAnalyze?.(idea.id)}>
+            <h4 className="font-semibold text-lg mb-2 hover:text-primary transition-colors" data-testid={`text-title-${idea.id}`}>
               {idea.title}
             </h4>
             <p className="text-muted-foreground text-sm mb-3" data-testid={`text-description-${idea.id}`}>
               {idea.description}
             </p>
           </div>
-          {getStatusBadge(idea.status)}
+          <div className="flex flex-col items-end space-y-2">
+            {getStatusBadge(idea.status)}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onAnalyze?.(idea.id)}
+              className="text-primary hover:text-primary"
+              data-testid={`button-analyze-${idea.id}`}
+            >
+              <Brain className="h-4 w-4 mr-1" />
+              AI Analysis
+            </Button>
+          </div>
         </div>
 
         {idea.tags && idea.tags.length > 0 && (

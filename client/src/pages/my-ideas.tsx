@@ -14,6 +14,7 @@ import { apiRequest } from "@/lib/queryClient"
 import { queryClient } from "@/lib/queryClient"
 import { useToast } from "@/hooks/use-toast"
 import { IdeaCard } from "@/components/idea-card"
+import { IdeaAnalysisDrawer } from "@/components/idea-analysis-drawer"
 import { z } from "zod"
 
 const ideaFormSchema = insertIdeaSchema.extend({
@@ -25,6 +26,8 @@ type IdeaFormData = z.infer<typeof ideaFormSchema>
 export default function MyIdeas() {
   const [showEditor, setShowEditor] = useState(false)
   const [editingIdea, setEditingIdea] = useState<Idea | null>(null)
+  const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null)
+  const [analysisOpen, setAnalysisOpen] = useState(false)
   const { toast } = useToast()
 
   const { data: userIdeas = [], isLoading } = useQuery<Idea[]>({
@@ -132,6 +135,14 @@ export default function MyIdeas() {
     setEditingIdea(null)
     form.reset()
     setShowEditor(true)
+  }
+
+  const handleAnalyzeIdea = (id: string) => {
+    const idea = userIdeas.find(i => i.id === id)
+    if (idea) {
+      setSelectedIdea(idea)
+      setAnalysisOpen(true)
+    }
   }
 
   if (isLoading) {
@@ -364,9 +375,16 @@ export default function MyIdeas() {
             idea={idea}
             onEdit={handleEditIdea}
             onDelete={handleDeleteIdea}
+            onAnalyze={handleAnalyzeIdea}
           />
         ))}
       </div>
+
+      <IdeaAnalysisDrawer 
+        idea={selectedIdea}
+        open={analysisOpen}
+        onOpenChange={setAnalysisOpen}
+      />
     </div>
   )
 }
