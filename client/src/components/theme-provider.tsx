@@ -25,12 +25,15 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 export function ThemeProvider({
   children,
   defaultTheme = "light",
-  storageKey = "idea-vault-theme",
+  storageKey = "conceptkeep-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  )
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window !== "undefined" && window.localStorage) {
+      return (localStorage.getItem(storageKey) as Theme) || defaultTheme
+    }
+    return defaultTheme
+  })
 
   useEffect(() => {
     const root = window.document.documentElement
@@ -47,12 +50,16 @@ export function ThemeProvider({
   const value = {
     theme,
     setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme)
+      if (typeof window !== "undefined" && window.localStorage) {
+        localStorage.setItem(storageKey, theme)
+      }
       setTheme(theme)
     },
     toggleTheme: () => {
       const newTheme = theme === "light" ? "dark" : "light"
-      localStorage.setItem(storageKey, newTheme)
+      if (typeof window !== "undefined" && window.localStorage) {
+        localStorage.setItem(storageKey, newTheme)
+      }
       setTheme(newTheme)
     },
   }
