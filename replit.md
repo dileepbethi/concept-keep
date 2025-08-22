@@ -1,8 +1,8 @@
-# Idea Vault
+# ConceptKeep
 
 ## Overview
 
-Idea Vault is a modern web application platform for storing, showcasing, and funding innovative ideas. The platform features a clean, futuristic design inspired by Arduino Cloud dashboard aesthetics, with comprehensive functionality for idea management, community interaction, and investment tracking.
+ConceptKeep is a modern web application platform for storing, showcasing, and funding innovative ideas. The platform features a clean, futuristic design inspired by Arduino Cloud dashboard aesthetics, with comprehensive functionality for idea management, community interaction, and investment tracking.
 
 The application is built as a full-stack TypeScript solution with a React frontend and Express backend, featuring a sidebar navigation system, dashboard views, and interactive components for idea creation, exploration, and investment management.
 
