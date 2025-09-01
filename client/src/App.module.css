@@ -1,0 +1,296 @@
+/* Calculator App Module Styles */
+
+.calculator {
+  @apply flex h-full max-w-6xl mx-auto bg-background;
+  gap: 1rem;
+}
+
+.calculatorMain {
+  @apply flex-1 max-w-md mx-auto bg-card rounded-2xl shadow-lg border border-border p-6;
+  min-height: 600px;
+}
+
+.calculatorHeader {
+  @apply flex justify-between items-center mb-4;
+}
+
+.calculatorTitle {
+  @apply text-2xl font-bold text-foreground;
+}
+
+.calculatorControls {
+  @apply flex gap-2;
+}
+
+.historyToggle {
+  @apply p-2 rounded-lg transition-colors;
+}
+
+.historyToggle.active {
+  @apply bg-primary text-primary-foreground;
+}
+
+/* Display Styles */
+.display {
+  @apply bg-muted rounded-xl p-6 mb-6 text-right min-h-[120px] flex flex-col justify-end;
+  border: 1px solid hsl(var(--border));
+}
+
+.displayExpression {
+  @apply text-sm text-muted-foreground mb-2 min-h-[20px] break-all;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.displayResult {
+  @apply text-3xl font-bold text-foreground break-all;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.displayError .displayResult {
+  @apply text-destructive;
+}
+
+/* Button Grid */
+.buttonGrid {
+  @apply grid grid-cols-4 gap-3;
+}
+
+/* Calculator Button Styles */
+.calculatorButton {
+  @apply rounded-xl font-semibold text-lg transition-all duration-200 min-h-[60px] flex items-center justify-center;
+  @apply hover:scale-105 active:scale-95;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  border: 1px solid hsl(var(--border));
+}
+
+.buttonContent {
+  @apply flex items-center justify-center;
+}
+
+/* Button Variants */
+.button-default {
+  @apply bg-muted text-foreground;
+}
+
+.button-default:hover {
+  @apply bg-muted;
+  background-color: hsl(var(--muted) / 0.8);
+}
+
+.button-operator {
+  @apply bg-primary text-primary-foreground;
+}
+
+.button-operator:hover {
+  @apply bg-primary;
+  background-color: hsl(var(--primary) / 0.9);
+}
+
+.button-equals {
+  @apply bg-gradient-to-r from-primary to-blue-500 text-primary-foreground font-bold shadow-lg;
+}
+
+.button-equals:hover {
+  background: linear-gradient(to right, hsl(var(--primary) / 0.9), hsl(217 91% 50%));
+}
+
+.button-clear {
+  @apply bg-destructive text-destructive-foreground;
+}
+
+.button-clear:hover {
+  @apply bg-destructive;
+  background-color: hsl(var(--destructive) / 0.9);
+}
+
+.button-function {
+  @apply bg-secondary text-secondary-foreground;
+  border: 1px solid hsl(var(--primary) / 0.3);
+}
+
+.button-function:hover {
+  @apply bg-secondary;
+  background-color: hsl(var(--secondary) / 0.8);
+}
+
+/* Button Sizes */
+.button-sm {
+  @apply min-h-[45px] text-base;
+}
+
+.button-md {
+  @apply min-h-[60px] text-lg;
+}
+
+.button-lg {
+  @apply min-h-[75px] text-xl;
+}
+
+/* Span columns */
+.span-2 {
+  grid-column: span 2;
+}
+
+.span-3 {
+  grid-column: span 3;
+}
+
+.span-4 {
+  grid-column: span 4;
+}
+
+/* Button States */
+.buttonDisabled {
+  @apply opacity-50 cursor-not-allowed hover:scale-100;
+}
+
+/* History Panel */
+.history {
+  @apply w-80 bg-card rounded-2xl shadow-lg border border-border p-4 h-fit max-h-[600px] flex flex-col;
+}
+
+.historyHeader {
+  @apply flex items-center justify-between mb-4 pb-3 border-b border-border;
+}
+
+.historyTitle {
+  @apply flex items-center gap-2 text-lg font-semibold text-foreground;
+}
+
+.clearHistoryButton {
+  @apply text-muted-foreground hover:text-destructive;
+}
+
+.historyContent {
+  @apply flex-1;
+}
+
+.historyEmpty {
+  @apply text-center py-8 text-muted-foreground;
+}
+
+.historyList {
+  @apply space-y-2;
+}
+
+.historyItem {
+  @apply p-3 rounded-lg transition-colors cursor-pointer border border-transparent;
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+.historyItem:hover {
+  @apply bg-muted border-border;
+}
+
+.historyItemContent {
+  @apply space-y-1;
+}
+
+.historyExpression {
+  @apply text-sm text-muted-foreground font-mono;
+}
+
+.historyResult {
+  @apply text-base font-semibold text-foreground font-mono;
+}
+
+.historyTime {
+  @apply text-xs text-muted-foreground mt-2 text-right;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .calculator {
+    @apply flex-col p-4 gap-4;
+  }
+  
+  .calculatorMain {
+    @apply max-w-full;
+  }
+  
+  .history {
+    @apply w-full max-h-[300px];
+  }
+  
+  .buttonGrid {
+    @apply gap-2;
+  }
+  
+  .calculatorButton {
+    @apply min-h-[50px] text-base;
+  }
+  
+  .displayResult {
+    @apply text-2xl;
+  }
+}
+
+@media (max-width: 480px) {
+  .calculatorButton {
+    @apply min-h-[45px] text-sm;
+  }
+  
+  .displayResult {
+    @apply text-xl;
+  }
+  
+  .display {
+    @apply p-4 min-h-[100px];
+  }
+}
+
+/* Dark mode specific adjustments */
+.dark .calculator {
+  @apply bg-background;
+}
+
+.dark .calculatorButton {
+  @apply shadow-sm;
+}
+
+.dark .button-default {
+  background-color: hsl(var(--muted) / 0.8);
+}
+
+.dark .button-default:hover {
+  @apply bg-muted;
+}
+
+.dark .historyItem {
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+.dark .historyItem:hover {
+  background-color: hsl(var(--muted) / 0.6);
+}
+
+/* Animation classes */
+.fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scaleIn {
+  animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
