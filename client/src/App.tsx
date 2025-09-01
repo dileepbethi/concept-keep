@@ -15,6 +15,7 @@ import CreateListing from "@/pages/create-listing";
 import Profile from "@/pages/profile";
 import Profiles from "@/pages/profiles";
 import ProfileDetail from "@/pages/profile-detail";
+import CalculatorPage from "@/pages/calculator";
 import NotFound from "@/pages/not-found";
 import { Bell, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -60,6 +61,7 @@ function Router() {
     { path: "/private-market", component: PrivateMarket, title: "Private Market" },
     { path: "/private-market/marketplace", component: Marketplace, title: "Marketplace" },
     { path: "/private-market/create-listing", component: CreateListing, title: "Create Listing" },
+    { path: "/calculator", component: CalculatorPage, title: "Calculator" },
     { path: "/profiles", component: Profiles, title: "Network Profiles" },
     { path: "/profile/:id", component: ProfileDetail, title: "Profile Details" },
     { path: "/profile", component: Profile, title: "Profile & Settings" },
